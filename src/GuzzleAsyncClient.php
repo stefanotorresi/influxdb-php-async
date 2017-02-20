@@ -9,12 +9,13 @@ namespace Thorr\InfluxDBAsync;
 
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\HandlerStack;
+use React\Dns\Resolver;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use WyriHaximus\React\GuzzlePsr7\HttpClientAdapter;
 
-class HttpClient implements Client
+class GuzzleAsyncClient implements AsyncClient
 {
     /**
      * @var array
@@ -37,17 +38,23 @@ class HttpClient implements Client
     private $guzzleConfig;
 
     const DEFAULT_OPTIONS = [
-        'host'      => 'localhost',
-        'port'      => 8086,
-        'database'  => '',
-        'username'  => '',
-        'password'  => '',
-        'ssl'       => false,
-        'verifySSL' => false,
-        'timeout'   => 0,
+        'host'       => 'localhost',
+        'port'       => 8086,
+        'database'   => '',
+        'username'   => '',
+        'password'   => '',
+        'ssl'        => false,
+        'verifySSL'  => false,
+        'timeout'    => 0,
+        'nameserver' => '8.8.8.8',
     ];
 
-    public function __construct(array $options, Guzzle $guzzle = null, LoopInterface $loop = null)
+    /**
+     * @var HttpClientAdapter
+     */
+    private $guzzleAdapter;
+
+    public function __construct(array $options = [], Guzzle $guzzle = null, LoopInterface $loop = null)
     {
         $options = array_merge(static::DEFAULT_OPTIONS, $options);
 
@@ -56,15 +63,16 @@ class HttpClient implements Client
         }
 
         if (! $loop) {
-            $loop   = LoopFactory::create();
+            $loop = LoopFactory::create();
         }
 
-        $guzzleReactAdapter = new HttpClientAdapter($loop);
+        $dnsResolver = (new Resolver\Factory())->createCached($options['nameserver'], $loop);
+        $this->guzzleAdapter = new HttpClientAdapter($loop, null, $dnsResolver);
 
         $scheme = 'http' . ($options['ssl'] ? 's' : '');
 
         $guzzleConfig = [
-            'handler'  => HandlerStack::create($guzzleReactAdapter),
+            'handler'  => HandlerStack::create($this->guzzleAdapter),
             'base_uri' => sprintf('%s://%s:%d', $scheme, $options['host'], $options['port']),
             'timeout'  => $options['timeout'],
             'verify'   => $options['verifySSL'],
@@ -87,7 +95,9 @@ class HttpClient implements Client
         $params['q']  = $query;
         $url          = 'query?' . http_build_query($params);
 
-        return $this->guzzle->requestAsync('GET', $url, $this->guzzleConfig);
+        $guzzlePromise = $this->guzzle->requestAsync('GET', $url, $this->guzzleConfig);
+
+        return \React\Promise\resolve($guzzlePromise);
     }
 
     public function write(string $payload, array $params = []): ExtendedPromiseInterface
@@ -98,7 +108,9 @@ class HttpClient implements Client
 
         $guzzleConfig['body'] = $payload;
 
-        return $this->guzzle->requestAsync('POST', $url, $guzzleConfig);
+        $guzzlePromise = $this->guzzle->requestAsync('POST', $url, $guzzleConfig);
+
+        return \React\Promise\resolve($guzzlePromise);
     }
 
     public function getOptions(): array

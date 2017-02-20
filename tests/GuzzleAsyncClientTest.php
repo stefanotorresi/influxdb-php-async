@@ -12,12 +12,12 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
-use Thorr\InfluxDBAsync\HttpClient;
+use Thorr\InfluxDBAsync\GuzzleAsyncClient;
 
-class HttpClientTest extends TestCase
+class GuzzleAsyncClientTest extends TestCase
 {
     /**
-     * @var HttpClient
+     * @var GuzzleAsyncClient
      */
     private $SUT;
 
@@ -33,18 +33,17 @@ class HttpClientTest extends TestCase
 
     protected function setUp()
     {
-        $options      = [];
         $this->guzzle = $this->createMock(Guzzle::class);
         $this->loop   = $this->createMock(LoopInterface::class);
 
-        $this->SUT = new HttpClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient([], $this->guzzle, $this->loop);
     }
 
     public function testOptionsConstructor()
     {
         $sutOptions = $this->SUT->getOptions();
 
-        foreach (HttpClient::DEFAULT_OPTIONS as $option => $value) {
+        foreach (GuzzleAsyncClient::DEFAULT_OPTIONS as $option => $value) {
             static::assertArrayHasKey($option, $sutOptions);
             static::assertSame($value, $sutOptions[$option]);
         }
@@ -97,7 +96,7 @@ class HttpClientTest extends TestCase
      */
     public function testUrlOptions(array $options, string $expectedUrl)
     {
-        $this->SUT = new HttpClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
 
         $this->guzzle
             ->expects(static::once())
@@ -137,7 +136,7 @@ class HttpClientTest extends TestCase
      */
     public function testAuthenticationOptions(array $options, array $expectedAuth)
     {
-        $this->SUT = new HttpClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
 
         $this->guzzle
             ->expects(static::once())
@@ -190,7 +189,7 @@ class HttpClientTest extends TestCase
             'timeout' => 666
         ];
 
-        $this->SUT = new HttpClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
 
         $this->guzzle
             ->expects(static::once())
@@ -211,7 +210,7 @@ class HttpClientTest extends TestCase
             'verifySSL' => true
         ];
 
-        $this->SUT = new HttpClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
 
         $this->guzzle
             ->expects(static::once())
