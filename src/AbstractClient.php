@@ -52,4 +52,20 @@ abstract class AbstractClient implements AsyncClient
     {
         $this->loop->run();
     }
+
+    protected function createBaseUri(): string
+    {
+        $options = $this->getOptions();
+        $scheme  = 'http' . ($options['ssl'] ? 's' : '');
+
+        return sprintf('%s://%s:%d', $scheme, $options['host'], $options['port']);
+    }
+
+    protected function createQueryUrl(string $query, array $params): string
+    {
+        $params['db'] = $params['db'] ?? $this->getOptions()['database'];
+        $params['q']  = $query;
+
+        return 'query?' . http_build_query($params);
+    }
 }

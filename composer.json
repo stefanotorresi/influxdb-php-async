@@ -22,7 +22,8 @@
     "require": {
         "php": "^7.1",
         "wyrihaximus/react-guzzle-psr7": "^1.0",
-        "react/datagram": "^1.1"
+        "react/datagram": "^1.1",
+        "clue/buzz-react": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.0"

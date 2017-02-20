@@ -45,11 +45,9 @@ final class GuzzleClient extends AbstractClient
         $dnsResolver = (new Resolver\Factory())->createCached($options['nameserver'], $loop);
         $this->guzzleAdapter = new HttpClientAdapter($loop, null, $dnsResolver);
 
-        $scheme = 'http' . ($options['ssl'] ? 's' : '');
-
         $guzzleConfig = [
             'handler'  => HandlerStack::create($this->guzzleAdapter),
-            'base_uri' => sprintf('%s://%s:%d', $scheme, $options['host'], $options['port']),
+            'base_uri' => $this->createBaseUri($options),
             'timeout'  => $options['timeout'],
             'verify'   => $options['verifySSL'],
         ];
@@ -65,9 +63,7 @@ final class GuzzleClient extends AbstractClient
 
     public function query(string $query, array $params = []): ExtendedPromiseInterface
     {
-        $params['db'] = $params['db'] ?? $this->getOptions()['database'];
-        $params['q']  = $query;
-        $url          = 'query?' . http_build_query($params);
+        $url = $this->createQueryUrl($query, $params);
 
         $guzzlePromise = $this->guzzle->requestAsync('GET', $url, $this->guzzleConfig);
 
