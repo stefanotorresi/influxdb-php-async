@@ -14,7 +14,7 @@ use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use WyriHaximus\React\GuzzlePsr7\HttpClientAdapter;
 
-final class GuzzleAsyncClient extends AbstractAsyncClient
+final class GuzzleClient extends AbstractClient
 {
     /**
      * @var Guzzle

@@ -10,7 +10,7 @@ namespace Thorr\InfluxDBAsync;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
 
-abstract class AbstractAsyncClient implements AsyncClient
+abstract class AbstractClient implements AsyncClient
 {
     /**
      * @var array
