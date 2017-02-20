@@ -1,0 +1,30 @@
+{
+    "name": "thorr/influxdb-php-async",
+    "description": "Async PHP client for InfluxDB",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Stefano Torresi",
+            "email": "stefano@torresi.io"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Thorr\\InfluxDBAsync\\": ["src/"]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Thorr\\InfluxDBAsync\\Test\\": ["test/"]
+        }
+    },
+    "require": {
+        "php": "^7.1",
+        "wyrihaximus/react-guzzle-psr7": "^1.0",
+        "react/datagram": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    }
+}
