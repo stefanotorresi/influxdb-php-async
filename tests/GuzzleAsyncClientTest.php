@@ -8,6 +8,7 @@ declare(strict_types = 1);
 namespace Thorr\InfluxDBAsync\Test;
 
 use GuzzleHttp\Client as Guzzle;
+use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
 use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use React\EventLoop\LoopInterface;
@@ -33,10 +34,10 @@ class GuzzleAsyncClientTest extends TestCase
 
     protected function setUp()
     {
-        $this->guzzle = $this->createMock(Guzzle::class);
         $this->loop   = $this->createMock(LoopInterface::class);
+        $this->guzzle = $this->createMock(Guzzle::class);
 
-        $this->SUT = new GuzzleAsyncClient([], $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient([], $this->loop, $this->guzzle);
     }
 
     public function testOptionsConstructor()
@@ -51,24 +52,24 @@ class GuzzleAsyncClientTest extends TestCase
 
     public function testQueryProxiesToGuzzleRequestAsync()
     {
-        $promise = $this->createMock(ExtendedPromiseInterface::class);
+        $guzzlePromise = $this->createMock(GuzzlePromise::class);
         $query = 'foobar';
 
         $this->guzzle
             ->expects(static::once())
             ->method('requestAsync')
             ->with('GET', "query?db=&q=$query", static::isType('array'))
-            ->willReturn($promise)
+            ->willReturn($guzzlePromise)
         ;
 
         $result = $this->SUT->query($query);
 
-        static::assertSame($promise, $result);
+        static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
 
     public function testWriteProxiesToGuzzleRequestAsync()
     {
-        $promise = $this->createMock(ExtendedPromiseInterface::class);
+        $guzzlePromise = $this->createMock(GuzzlePromise::class);
         $payload = 'foobar';
 
         $this->guzzle
@@ -80,12 +81,12 @@ class GuzzleAsyncClientTest extends TestCase
                 static::assertEquals($guzzleConfig['body'], $payload);
                 return true;
             }))
-            ->willReturn($promise)
+            ->willReturn($guzzlePromise)
         ;
 
         $result = $this->SUT->write($payload);
 
-        static::assertSame($promise, $result);
+        static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
 
     /**
@@ -96,7 +97,7 @@ class GuzzleAsyncClientTest extends TestCase
      */
     public function testUrlOptions(array $options, string $expectedUrl)
     {
-        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->loop, $this->guzzle);
 
         $this->guzzle
             ->expects(static::once())
@@ -105,7 +106,7 @@ class GuzzleAsyncClientTest extends TestCase
                 static::assertEquals($expectedUrl, $guzzleConfig['base_uri']);
                 return true;
             }))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn($this->createMock(GuzzlePromise::class))
         ;
 
         $this->SUT->query('');
@@ -136,7 +137,7 @@ class GuzzleAsyncClientTest extends TestCase
      */
     public function testAuthenticationOptions(array $options, array $expectedAuth)
     {
-        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->loop, $this->guzzle);
 
         $this->guzzle
             ->expects(static::once())
@@ -149,7 +150,7 @@ class GuzzleAsyncClientTest extends TestCase
                 }
                 return true;
             }))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn($this->createMock(GuzzlePromise::class))
         ;
 
         $this->SUT->query('');
@@ -189,7 +190,7 @@ class GuzzleAsyncClientTest extends TestCase
             'timeout' => 666
         ];
 
-        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->loop, $this->guzzle);
 
         $this->guzzle
             ->expects(static::once())
@@ -198,7 +199,7 @@ class GuzzleAsyncClientTest extends TestCase
                 static::assertSame($options['timeout'], $guzzleConfig['timeout']);
                 return true;
             }))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn($this->createMock(GuzzlePromise::class))
         ;
 
         $this->SUT->query('');
@@ -210,7 +211,7 @@ class GuzzleAsyncClientTest extends TestCase
             'verifySSL' => true
         ];
 
-        $this->SUT = new GuzzleAsyncClient($options, $this->guzzle, $this->loop);
+        $this->SUT = new GuzzleAsyncClient($options, $this->loop, $this->guzzle);
 
         $this->guzzle
             ->expects(static::once())
@@ -219,7 +220,7 @@ class GuzzleAsyncClientTest extends TestCase
                 static::assertSame($options['verifySSL'], $guzzleConfig['verify']);
                 return true;
             }))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn($this->createMock(GuzzlePromise::class))
         ;
 
         $this->SUT->query('');
@@ -234,7 +235,7 @@ class GuzzleAsyncClientTest extends TestCase
             ->expects(static::once())
             ->method('requestAsync')
             ->with('GET', "query?db=$database&q=", static::isType('array'))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn($this->createMock(GuzzlePromise::class))
         ;
 
         $this->SUT->query('');
@@ -250,7 +251,7 @@ class GuzzleAsyncClientTest extends TestCase
             ->expects(static::once())
             ->method('requestAsync')
             ->with('GET', "query?db=$database&q=", static::isType('array'))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn($this->createMock(GuzzlePromise::class))
         ;
 
         $this->SUT->query('', ['db' => $database]);
