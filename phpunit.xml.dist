@@ -6,7 +6,6 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
-         failOnRisky="true"
          colors="true">
     <testsuites>
         <testsuite name="unit">
