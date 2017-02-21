@@ -12,7 +12,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use React\Promise\ExtendedPromiseInterface as Promise;
 use Thorr\InfluxDBAsync\AsyncClient;
 
-abstract class AbstractFunctionalTest extends TestCase
+abstract class FunctionalTestCase extends TestCase
 {
     /**
      * @var AsyncClient
