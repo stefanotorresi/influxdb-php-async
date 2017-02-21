@@ -13,6 +13,7 @@ use React\Dns\Resolver;
 use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use WyriHaximus\React\GuzzlePsr7\HttpClientAdapter;
+use function React\Promise\resolve as resolve_promise;
 
 final class GuzzleClient extends AbstractClient
 {
@@ -67,7 +68,7 @@ final class GuzzleClient extends AbstractClient
 
         $guzzlePromise = $this->guzzle->requestAsync('GET', $url, $this->guzzleConfig);
 
-        return \React\Promise\resolve($guzzlePromise);
+        return resolve_promise($guzzlePromise);
     }
 
     public function write(string $payload, array $params = []): ExtendedPromiseInterface
@@ -79,6 +80,13 @@ final class GuzzleClient extends AbstractClient
 
         $guzzlePromise = $this->guzzle->requestAsync('POST', $url, $guzzleConfig);
 
-        return \React\Promise\resolve($guzzlePromise);
+        return resolve_promise($guzzlePromise);
+    }
+
+    public function ping(): ExtendedPromiseInterface
+    {
+        $guzzlePromise = $this->guzzle->requestAsync('HEAD', 'ping', $this->guzzleConfig);
+
+        return resolve_promise($guzzlePromise);
     }
 }

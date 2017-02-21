@@ -25,6 +25,7 @@ interface AsyncClient
 
     public function query(string $query, array $params = []): ExtendedPromiseInterface;
     public function write(string $payload, array $params = []): ExtendedPromiseInterface;
+    public function ping(): ExtendedPromiseInterface;
 
     public function selectDatabase(string $database): void;
     public function getOptions(): array;

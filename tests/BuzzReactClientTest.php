@@ -56,37 +56,34 @@ class BuzzReactClientTest extends TestCase
 
     public function testQueryProxiesToBuzzGet()
     {
-        $promise = $this->createMock(ExtendedPromiseInterface::class);
-
         $query = 'foobar';
 
         $this->buzz
             ->expects(static::once())
             ->method('get')
             ->with("query?db=&q=$query", static::isType('array'))
-            ->willReturn($promise)
+            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
         ;
 
         $result = $this->SUT->query($query);
 
-        static::assertSame($promise, $result);
+        static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
 
     public function testWriteProxiesToBuzzPost()
     {
-        $promise = $this->createMock(ExtendedPromiseInterface::class);
         $payload = 'foobar';
 
         $this->buzz
             ->expects(static::once())
             ->method('post')
             ->with('write?db=', static::isType('array'), $payload)
-            ->willReturn($promise)
+            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
         ;
 
         $result = $this->SUT->write($payload);
 
-        static::assertSame($promise, $result);
+        static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
 
     /**
@@ -261,5 +258,19 @@ class BuzzReactClientTest extends TestCase
         ;
 
         $this->SUT->query('', ['db' => $database]);
+    }
+
+    public function testPingProxiesToBuzzHead()
+    {
+        $this->buzz
+            ->expects(static::once())
+            ->method('head')
+            ->with('ping')
+            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+        ;
+
+        $result = $this->SUT->ping();
+
+        static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
 }

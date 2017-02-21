@@ -13,7 +13,7 @@ use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use React\SocketClient;
 
-class BuzzReactClient extends AbstractClient
+final class BuzzReactClient extends AbstractClient
 {
     /**
      * @var Buzz\Browser
@@ -46,6 +46,11 @@ class BuzzReactClient extends AbstractClient
         $headers = $this->createRequestHeaders();
 
         return $this->buzz->post($url, $headers, $payload);
+    }
+
+    public function ping(): ExtendedPromiseInterface
+    {
+        return $this->buzz->head('ping');
     }
 
     protected function configureBuzz(Buzz\Browser $buzz): Buzz\Browser

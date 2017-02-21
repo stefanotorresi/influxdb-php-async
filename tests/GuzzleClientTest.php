@@ -256,4 +256,18 @@ class GuzzleClientTest extends TestCase
 
         $this->SUT->query('', ['db' => $database]);
     }
+
+    public function testPingProxiesToGuzzleRequestAsync()
+    {
+        $this->guzzle
+            ->expects(static::once())
+            ->method('requestAsync')
+            ->with('HEAD', 'ping', static::isType('array'))
+            ->willReturn($this->createMock(GuzzlePromise::class))
+        ;
+
+        $result = $this->SUT->ping();
+
+        static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
+    }
 }
