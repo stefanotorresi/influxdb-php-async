@@ -36,7 +36,7 @@ final class GuzzleClient extends AbstractClient
         parent::__construct($options, $loop);
 
         $options = $this->getOptions();
-        $loop    = $this->getLoop();
+        $loop    = $this->loop;
 
         if (! $guzzle) {
             $guzzle = new Guzzle();
@@ -72,8 +72,7 @@ final class GuzzleClient extends AbstractClient
 
     public function write(string $payload, array $params = []): ExtendedPromiseInterface
     {
-        $params['db'] = $params['db'] ?? $this->getOptions()['database'];
-        $url          = 'write?' . http_build_query($params);
+        $url          = $this->createWriteUrl($params);
         $guzzleConfig = $this->guzzleConfig;
 
         $guzzleConfig['body'] = $payload;

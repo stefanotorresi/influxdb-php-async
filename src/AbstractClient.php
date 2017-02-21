@@ -20,7 +20,7 @@ abstract class AbstractClient implements AsyncClient
     /**
      * @var LoopInterface
      */
-    private $loop;
+    protected $loop;
 
     public function __construct(array $options = [], LoopInterface $loop = null)
     {
@@ -43,11 +43,6 @@ abstract class AbstractClient implements AsyncClient
         return $this->options;
     }
 
-    public function getLoop(): LoopInterface
-    {
-        return $this->loop;
-    }
-
     public function run(): void
     {
         $this->loop->run();
@@ -63,9 +58,23 @@ abstract class AbstractClient implements AsyncClient
 
     protected function createQueryUrl(string $query, array $params): string
     {
-        $params['db'] = $params['db'] ?? $this->getOptions()['database'];
-        $params['q']  = $query;
+        $params      = $this->applyDatabaseParam($params);
+        $params['q'] = $query;
 
         return 'query?' . http_build_query($params);
+    }
+
+    protected function createWriteUrl(array $params): string
+    {
+        $params = $this->applyDatabaseParam($params);
+
+        return 'write?' . http_build_query($params);
+    }
+
+    protected function applyDatabaseParam(array $params): array
+    {
+        $params['db'] = $params['db'] ?? $this->getOptions()['database'];
+
+        return $params;
     }
 }

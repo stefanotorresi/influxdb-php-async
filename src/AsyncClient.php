@@ -7,7 +7,6 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync;
 
-use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 
 interface AsyncClient
@@ -29,6 +28,5 @@ interface AsyncClient
 
     public function selectDatabase(string $database): void;
     public function getOptions(): array;
-    public function getLoop(): LoopInterface;
     public function run(): void;
 }

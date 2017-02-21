@@ -25,36 +25,40 @@ class BuzzReactClient extends AbstractClient
         parent::__construct($options, $loop);
 
         if (! $buzz) {
-            $buzz = $this->createBuzz();
+            $buzz = new Buzz\Browser($this->loop);
         }
 
-        $this->buzz = $buzz;
+        $this->buzz = $this->configureBuzz($buzz);
     }
 
 
     public function query(string $query, array $params = []): ExtendedPromiseInterface
     {
-        $url = $this->createQueryUrl($query, $params);
-        $headers = [
-            'Authorization' => 'Basic ' . base64_encode("{$this->getOptions()['username']}:{$this->getOptions()['password']}")
-        ];
+        $url     = $this->createQueryUrl($query, $params);
+        $headers = $this->createRequestHeaders();
 
-        $this->buzz->get($url, $headers);
+        return $this->buzz->get($url, $headers);
     }
 
     public function write(string $payload, array $params = []): ExtendedPromiseInterface
     {
-        // TODO: Implement write() method.
+        $url     = $this->createWriteUrl($params);
+        $headers = $this->createRequestHeaders();
+
+        return $this->buzz->post($url, $headers, $payload);
     }
 
-    protected function createBuzz(): Buzz\Browser
+    protected function configureBuzz(Buzz\Browser $buzz): Buzz\Browser
     {
         $options = $this->getOptions();
-        $loop    = $this->getLoop();
+        $loop    = $this->loop;
 
         $dns       = (new ResolverFactory())->createCached($options['nameserver'], $loop);
-        $tcp       = new SocketClient\TcpConnector($loop);
-        $connector = new SocketClient\DnsConnector($tcp, $dns);
+        $connector = new SocketClient\DnsConnector(new SocketClient\TcpConnector($loop), $dns);
+
+        if ($options['timeout'] > 0) {
+            $connector = new SocketClient\TimeoutConnector($connector, $options['timeout'], $loop);
+        }
 
         if ($options['ssl']) {
             $connector = new SocketClient\SecureConnector($connector, $loop, [
@@ -65,9 +69,21 @@ class BuzzReactClient extends AbstractClient
 
         $sender = Buzz\Io\Sender::createFromLoopConnectors($loop, $connector);
 
-        $buzz = (new Buzz\Browser($loop, $sender))
-            ->withBase($this->createBaseUri());
+        return $buzz
+            ->withBase($this->createBaseUri())
+            ->withSender($sender)
+        ;
+    }
 
-        return $buzz;
+    protected function createRequestHeaders(): array
+    {
+        $headers = [];
+        $options = $this->getOptions();
+
+        if (! empty($options['username']) && ! empty($options['password'])) {
+            $headers['Authorization'] = 'Basic ' . base64_encode(sprintf('%s:%s', $options['username'], $options['password']));
+        }
+
+        return $headers;
     }
 }

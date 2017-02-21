@@ -42,7 +42,7 @@ class GuzzleClientTest extends TestCase
 
     public function testOptionsConstructor()
     {
-        $sutOptions = $this->SUT->getOptions();
+        $sutOptions = (new GuzzleClient([]))->getOptions();
 
         foreach (GuzzleClient::DEFAULT_OPTIONS as $option => $value) {
             static::assertArrayHasKey($option, $sutOptions);
