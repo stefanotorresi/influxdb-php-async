@@ -77,4 +77,12 @@ abstract class AbstractClient implements AsyncClient
 
         return $params;
     }
+
+    protected function detectQueryMethod(string $query): string
+    {
+        return
+            preg_match('/^(?:ALTER|CREATE|DELETE|DROP|GRANT|KILL|REVOKE)\b|(:?SELECT\b.*\bINTO\b)/', $query) === 1
+            ? 'POST' : 'GET'
+        ;
+    }
 }

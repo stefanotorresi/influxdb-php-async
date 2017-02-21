@@ -65,8 +65,9 @@ final class GuzzleClient extends AbstractClient
     public function query(string $query, array $params = []): ExtendedPromiseInterface
     {
         $url = $this->createQueryUrl($query, $params);
+        $method = $this->detectQueryMethod($query);
 
-        $guzzlePromise = $this->guzzle->requestAsync('GET', $url, $this->guzzleConfig);
+        $guzzlePromise = $this->guzzle->requestAsync($method, $url, $this->guzzleConfig);
 
         return resolve_promise($guzzlePromise);
     }

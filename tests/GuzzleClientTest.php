@@ -270,4 +270,39 @@ class GuzzleClientTest extends TestCase
 
         static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
+
+    /**
+     * @param string $query
+     * @param string $verb
+     *
+     * @dataProvider queryVerbProvider
+     */
+    public function testQueryTypeDeterminesHTTPVerb(string $query, string $verb)
+    {
+        $this->guzzle
+            ->expects(static::once())
+            ->method('requestAsync')
+            ->with(strtoupper($verb), 'query?db=&q=' . urlencode($query), static::isType('array'))
+            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+        ;
+
+        $this->SUT->query($query);
+    }
+
+    public function queryVerbProvider()
+    {
+        return [
+            [ 'SELECT * FROM "mydb"', 'get' ],
+            [ 'SELECT * INTO "newmeas" FROM "mymeas"', 'post' ],
+            [ 'CREATE DATABASE "mydb"', 'post' ],
+            [ 'CREATE RETENTION POLICY four_weeks ON mydb DURATION 4w REPLICATION 1;', 'post' ],
+            [ 'SELECT "water_level" INTO "h2o_feet_copy_1" FROM "h2o_feet" WHERE "location" = "new_ork"', 'post' ],
+            [ 'SHOW CONTINUOUS QUERIES', 'get' ],
+            [ 'ALTER RETENTION POLICY "1h.cpu" ON "mydb" DEFAULT', 'post' ],
+            [ 'CREATE DATABASE "foo"', 'post' ],
+            [ 'CREATE RETENTION POLICY "10m.events" ON "somedb" DURATION 60m REPLICATION 2 DEFAULT', 'post' ],
+            [ 'CREATE SUBSCRIPTION "sub0" ON "mydb"."autogen" DESTINATIONS ALL "udp://example.com:9090"', 'post' ],
+            [ 'CREATE USER "jdoe" WITH PASSWORD "1337password"', 'post'  ],
+        ];
+    }
 }

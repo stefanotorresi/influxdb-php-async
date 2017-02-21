@@ -273,4 +273,39 @@ class BuzzReactClientTest extends TestCase
 
         static::assertInstanceOf(ExtendedPromiseInterface::class, $result);
     }
+
+    /**
+     * @param string $query
+     * @param string $verb
+     *
+     * @dataProvider queryVerbProvider
+     */
+    public function testQueryTypeDeterminesHTTPVerb(string $query, string $verb)
+    {
+        $this->buzz
+            ->expects(static::once())
+            ->method($verb)
+            ->with('query?db=&q=' . urlencode($query), static::isType('array'))
+            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+        ;
+
+        $this->SUT->query($query);
+    }
+
+    public function queryVerbProvider()
+    {
+        return [
+            [ 'SELECT * FROM "mydb"', 'GET' ],
+            [ 'SELECT * INTO "newmeas" FROM "mymeas"', 'POST' ],
+            [ 'CREATE DATABASE "mydb"', 'POST' ],
+            [ 'CREATE RETENTION POLICY four_weeks ON mydb DURATION 4w REPLICATION 1;', 'POST' ],
+            [ 'SELECT "water_level" INTO "h2o_feet_copy_1" FROM "h2o_feet" WHERE "location" = "new_ork"', 'POST' ],
+            [ 'SHOW CONTINUOUS QUERIES', 'GET' ],
+            [ 'ALTER RETENTION POLICY "1h.cpu" ON "mydb" DEFAULT', 'POST' ],
+            [ 'CREATE DATABASE "foo"', 'POST' ],
+            [ 'CREATE RETENTION POLICY "10m.events" ON "somedb" DURATION 60m REPLICATION 2 DEFAULT', 'POST' ],
+            [ 'CREATE SUBSCRIPTION "sub0" ON "mydb"."autogen" DESTINATIONS ALL "udp://example.com:9090"', 'POST' ],
+            [ 'CREATE USER "jdoe" WITH PASSWORD "1337password"', 'POST'  ],
+        ];
+    }
 }

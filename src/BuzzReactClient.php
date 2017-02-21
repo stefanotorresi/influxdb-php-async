@@ -36,8 +36,9 @@ final class BuzzReactClient extends AbstractClient
     {
         $url     = $this->createQueryUrl($query, $params);
         $headers = $this->createRequestHeaders();
+        $method  = $this->detectQueryMethod($query);
 
-        return $this->buzz->get($url, $headers);
+        return $this->buzz->{$method}($url, $headers);
     }
 
     public function write(string $payload, array $params = []): ExtendedPromiseInterface
