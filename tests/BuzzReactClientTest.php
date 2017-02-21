@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
+use React\Promise\Promise;
 use React\SocketClient;
 use Thorr\InfluxDBAsync\AsyncClient;
 use Thorr\InfluxDBAsync\BuzzReactClient;
@@ -62,7 +63,7 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('get')
             ->with("query?db=&q=$query", static::isType('array'))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $result = $this->SUT->query($query);
@@ -78,7 +79,7 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('post')
             ->with('write?db=', static::isType('array'), $payload)
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $result = $this->SUT->write($payload);
@@ -137,7 +138,7 @@ class BuzzReactClientTest extends TestCase
                 }
                 return true;
             }))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $this->SUT->query('');
@@ -238,7 +239,7 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('get')
             ->with("query?db=$database&q=", static::isType('array'))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $this->SUT->query('');
@@ -254,7 +255,7 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('get')
             ->with("query?db=$database&q=", static::isType('array'))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $this->SUT->query('', ['db' => $database]);
@@ -266,7 +267,7 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('head')
             ->with('ping')
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $result = $this->SUT->ping();
@@ -286,7 +287,7 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method($verb)
             ->with('query?db=&q=' . urlencode($query), static::isType('array'))
-            ->willReturn($this->createMock(ExtendedPromiseInterface::class))
+            ->willReturn(new Promise(function(){}))
         ;
 
         $this->SUT->query($query);
@@ -295,11 +296,11 @@ class BuzzReactClientTest extends TestCase
     public function queryVerbProvider()
     {
         return [
-            [ 'SELECT * FROM "mydb"', 'GET' ],
+            [ 'SELECT * FROM "mymeas"', 'GET' ],
             [ 'SELECT * INTO "newmeas" FROM "mymeas"', 'POST' ],
             [ 'CREATE DATABASE "mydb"', 'POST' ],
             [ 'CREATE RETENTION POLICY four_weeks ON mydb DURATION 4w REPLICATION 1;', 'POST' ],
-            [ 'SELECT "water_level" INTO "h2o_feet_copy_1" FROM "h2o_feet" WHERE "location" = "new_ork"', 'POST' ],
+            [ 'SELECT "water_level" INTO "h2o_feet_copy_1" FROM "h2o_feet" WHERE "location" = "new_york"', 'POST' ],
             [ 'SHOW CONTINUOUS QUERIES', 'GET' ],
             [ 'ALTER RETENTION POLICY "1h.cpu" ON "mydb" DEFAULT', 'POST' ],
             [ 'CREATE DATABASE "foo"', 'POST' ],

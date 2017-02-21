@@ -292,11 +292,11 @@ class GuzzleClientTest extends TestCase
     public function queryVerbProvider()
     {
         return [
-            [ 'SELECT * FROM "mydb"', 'get' ],
+            [ 'SELECT * FROM "mymeas"', 'get' ],
             [ 'SELECT * INTO "newmeas" FROM "mymeas"', 'post' ],
             [ 'CREATE DATABASE "mydb"', 'post' ],
             [ 'CREATE RETENTION POLICY four_weeks ON mydb DURATION 4w REPLICATION 1;', 'post' ],
-            [ 'SELECT "water_level" INTO "h2o_feet_copy_1" FROM "h2o_feet" WHERE "location" = "new_ork"', 'post' ],
+            [ 'SELECT "water_level" INTO "h2o_feet_copy_1" FROM "h2o_feet" WHERE "location" = "new_york"', 'post' ],
             [ 'SHOW CONTINUOUS QUERIES', 'get' ],
             [ 'ALTER RETENTION POLICY "1h.cpu" ON "mydb" DEFAULT', 'post' ],
             [ 'CREATE DATABASE "foo"', 'post' ],
