@@ -1,5 +1,5 @@
 {
-    "name": "thorr/influxdb-php-async",
+    "name": "stefanotorresi/influxdb-php-async",
     "description": "Async PHP client for InfluxDB",
     "type": "library",
     "license": "MIT",

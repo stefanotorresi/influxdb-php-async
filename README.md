@@ -3,12 +3,14 @@
  An asyncronous client for [InfluxDB][InfluxDB], implemented via [ReactPHP][ReactPHP].
  
  [![Build Status](https://travis-ci.org/stefanotorresi/influxdb-php-async.svg?branch=master)](https://travis-ci.org/stefanotorresi/influxdb-php-async)
+ [![Latest Stable Version](https://poser.pugx.org/thorr/influxdb-php-async/version)](https://packagist.org/packages/thorr/influxdb-php-async)
+ [![License](https://poser.pugx.org/thorr/influxdb-php-async/license)](https://packagist.org/packages/thorr/influxdb-php-async)
 
 ### Installation
 
 Use [Composer][Composer]
 
-`composer require thorr/influxdb-php-async`
+`composer require stefanotorresi/influxdb-php-async`
 
 ### Usage
 
