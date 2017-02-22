@@ -5,21 +5,26 @@ services:
 
 language: php
 
-php:
-  - '7.1'
+matrix:
+  fast_finish: true
+  include:
+    - php: '7.1'
 
 cache:
   directories:
     - $HOME/.composer/cache
     - vendor
 
-before_script:
-  - docker run -d -p 8086:8086 influxdb:alpine
-  - docker ps -a
+before_install:
+  - if [[ $XDEBUG != 'true' && "$(php --version | grep xdebug -ci)" -ge 1 ]]; then phpenv config-rm xdebug.ini ; fi
 
 install:
   - travis_retry composer install --no-interaction
   - composer show
+
+before_script:
+  - docker run -d -p 8086:8086 influxdb:alpine
+  - docker ps -a
 
 script:
   - ./vendor/bin/phpunit
