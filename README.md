@@ -71,8 +71,9 @@ $client = new BuzzReactClient($options);
 
 Some clients may have implementation specific options, e.g. `clue/php-buzz-react` does userland DNS resolution, thus `BuzzReactClient` provides a `nameserver` option to set a DNS different than the default `8.8.8.8`.
 
-### Future developments
+### Future developments / TO-DO list
 
+- An UDP client implemented with [react/datagram](https://github.com/reactphp/datagram).
 - A fully functional async Guzzle implementation that relies on cURL rather than userland React sockets. The incompatibility between Guzzle promises and React ones currently makes this problematic.
 - A QueryBuilder, possibly identical to the one in the [official influxdb-php client].
 - A set of response decoders that convert the JSON body from PSR-7 Responses to something more readily consumable.
@@ -81,7 +82,6 @@ Some clients may have implementation specific options, e.g. `clue/php-buzz-react
 ### License
 
 This package is released under the [MIT](https://github.com/stefanotorresi/influxdb-php-async/blob/master/LICENSE) license.
-
 
 
 [InfluxDB]: https://github.com/influxdata/influxdb
