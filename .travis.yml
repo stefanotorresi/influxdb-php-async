@@ -1,0 +1,25 @@
+sudo: required
+
+services:
+  - docker
+
+language: php
+
+php:
+  - '7.1'
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - vendor
+
+before_script:
+  - docker run -d -p 8086:8086 influxdb:alpine
+  - docker ps -a
+
+install:
+  - travis_retry composer install --no-interaction
+  - composer show
+
+script:
+  - ./vendor/bin/phpunit
