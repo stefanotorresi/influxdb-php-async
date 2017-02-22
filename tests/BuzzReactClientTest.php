@@ -15,7 +15,6 @@ use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use React\Promise\Promise;
 use React\SocketClient;
-use Thorr\InfluxDBAsync\AsyncClient;
 use Thorr\InfluxDBAsync\BuzzReactClient;
 
 class BuzzReactClientTest extends TestCase
@@ -49,7 +48,7 @@ class BuzzReactClientTest extends TestCase
     {
         $sutOptions = (new BuzzReactClient([]))->getOptions();
 
-        foreach (AsyncClient::DEFAULT_OPTIONS as $option => $value) {
+        foreach (BuzzReactClient::DEFAULT_OPTIONS as $option => $value) {
             static::assertArrayHasKey($option, $sutOptions);
             static::assertSame($value, $sutOptions[$option]);
         }

@@ -9,7 +9,7 @@ namespace Thorr\InfluxDBAsync\Test\Functional;
 
 use Thorr\InfluxDBAsync\BuzzReactClient;
 
-class BuzzReactClientTestCase extends FunctionalTestCase
+class BuzzReactClientTest extends TestCase
 {
     protected function setUp()
     {

@@ -9,7 +9,7 @@ namespace Thorr\InfluxDBAsync\Test\Functional;
 
 use Thorr\InfluxDBAsync\GuzzleClient;
 
-class GuzzleClientTestCase extends FunctionalTestCase
+class GuzzleClientTest extends TestCase
 {
     protected function setUp()
     {

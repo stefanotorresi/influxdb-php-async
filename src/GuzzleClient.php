@@ -18,6 +18,16 @@ use function React\Promise\resolve as resolve_promise;
 final class GuzzleClient extends AbstractClient
 {
     /**
+     * {@inheritdoc}
+     *
+     * @todo get rid of userland domain name resolution and rely on curl as Guzzle does usually. This would be the
+     * main use case for this implementation over the buzz-react one.
+     */
+    protected static $clientOptions = [
+        'nameserver' => '8.8.8.8',
+    ];
+
+    /**
      * @var Guzzle
      */
     private $guzzle;

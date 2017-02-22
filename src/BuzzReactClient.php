@@ -18,6 +18,13 @@ use function \React\Promise\reject as reject_promise;
 final class BuzzReactClient extends AbstractClient
 {
     /**
+     * {@inheritdoc}
+     */
+    protected static $clientOptions = [
+        'nameserver' => '8.8.8.8',
+    ];
+
+    /**
      * @var Buzz\Browser
      */
     private $buzz;

@@ -7,12 +7,12 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync\Test\Functional;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Http\Message\ResponseInterface as Response;
 use React\Promise\ExtendedPromiseInterface as Promise;
 use Thorr\InfluxDBAsync\AsyncClient;
 
-abstract class FunctionalTestCase extends TestCase
+abstract class TestCase extends BaseTestCase
 {
     /**
      * @var AsyncClient

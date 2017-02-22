@@ -7,25 +7,13 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync;
 
-use React\Promise\ExtendedPromiseInterface;
+use React\Promise\ExtendedPromiseInterface as Promise;
 
 interface AsyncClient
 {
-    const DEFAULT_OPTIONS = [
-        'host'       => 'localhost',
-        'port'       => 8086,
-        'database'   => '',
-        'username'   => '',
-        'password'   => '',
-        'ssl'        => false,
-        'verifySSL'  => false,
-        'timeout'    => 0,
-        'nameserver' => '8.8.8.8',
-    ];
-
-    public function query(string $query, array $params = []): ExtendedPromiseInterface;
-    public function write(string $payload, array $params = []): ExtendedPromiseInterface;
-    public function ping(): ExtendedPromiseInterface;
+    public function query(string $query, array $params = []): Promise;
+    public function write(string $payload, array $params = []): Promise;
+    public function ping(): Promise;
 
     public function selectDatabase(string $database): void;
     public function getOptions(): array;
