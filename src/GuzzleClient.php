@@ -53,7 +53,7 @@ final class GuzzleClient extends AbstractClient
             $guzzle = new Guzzle();
         }
 
-        $dnsResolver = (new Resolver\Factory())->createCached($options['nameserver'], $loop);
+        $dnsResolver         = (new Resolver\Factory())->createCached($options['nameserver'], $loop);
         $this->guzzleAdapter = new HttpClientAdapter($loop, null, $dnsResolver);
 
         $guzzleConfig = [
@@ -74,7 +74,7 @@ final class GuzzleClient extends AbstractClient
 
     public function query(string $query, array $params = []): ExtendedPromiseInterface
     {
-        $url = $this->createQueryUrl($query, $params);
+        $url    = $this->createQueryUrl($query, $params);
         $method = $this->detectQueryMethod($query);
 
         $guzzlePromise = $this->guzzle->requestAsync($method, $url, $this->guzzleConfig);

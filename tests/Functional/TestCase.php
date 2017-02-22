@@ -28,9 +28,10 @@ abstract class TestCase extends BaseTestCase
     protected function setUp()
     {
         $address = sprintf('tcp://%s:%s', $this->options['host'], $this->options['port']);
-        $socket = @stream_socket_client($address);
+        $socket  = @stream_socket_client($address);
         if (! $socket) {
             static::markTestSkipped("InfluxDB doesn't appear to be running on $address. Cannot run functional tests");
+
             return;
         }
         fclose($socket);
@@ -46,7 +47,7 @@ abstract class TestCase extends BaseTestCase
         $dbCreated = $this->client
             ->query('CREATE DATABASE test')
             ->then(
-                function(Response $response) {
+                function (Response $response) {
                     $responseString = (string) $response->getBody();
                     static::assertSame(200, $response->getStatusCode());
                     static::assertNotContains('deprecated', $responseString);
@@ -66,10 +67,10 @@ abstract class TestCase extends BaseTestCase
      */
     public function testShowDatabases(Promise $dbCreated)
     {
-        $dbCreated->then(function() {
+        $dbCreated->then(function () {
             return $this->client->query('SHOW DATABASES');
         })->done(
-            function(Response $response) {
+            function (Response $response) {
                 static::assertSame(200, $response->getStatusCode());
                 $responseString = (string) $response->getBody();
                 $responseArray = json_decode($responseString, true);
@@ -89,10 +90,10 @@ abstract class TestCase extends BaseTestCase
      */
     public function testSelectEverything(Promise $dbCreated)
     {
-        $dbCreated->then(function(){
+        $dbCreated->then(function () {
             return $this->client->query('SELECT * FROM /.*/');
         })->done(
-            function(Response $response) {
+            function (Response $response) {
                 $responseString = (string) $response->getBody();
                 static::assertSame(200, $response->getStatusCode());
                 static::assertNotContains('error', $responseString);
@@ -108,10 +109,10 @@ abstract class TestCase extends BaseTestCase
      */
     public function testWrite(Promise $dbCreated): Promise
     {
-        $measureWritten = $dbCreated->then(function(){
+        $measureWritten = $dbCreated->then(function () {
             return $this->client->write('measure,tag="foo" value="bar"');
         })->then(
-            function(Response $response) {
+            function (Response $response) {
                 $responseString = (string) $response->getBody();
                 static::assertSame(204, $response->getStatusCode());
                 static::assertEmpty($responseString);
@@ -132,7 +133,7 @@ abstract class TestCase extends BaseTestCase
         $measureWritten->then(function () {
             return $this->client->query('SELECT * INTO another_measure FROM measure', ['pretty' => 'true']);
         })->done(
-            function(Response $response) {
+            function (Response $response) {
                 static::assertSame(200, $response->getStatusCode());
                 $responseString = (string) $response->getBody();
                 $responseArray = json_decode($responseString, true);
@@ -152,10 +153,10 @@ abstract class TestCase extends BaseTestCase
      */
     public function testMalformedQuery(Promise $dbCreated)
     {
-        $dbCreated->then(function(){
+        $dbCreated->then(function () {
             return $this->client->query('foobarbaz');
         })->done(
-            function() {
+            function () {
                 static::fail('Request yielded a fullfilled promise');
             },
             function (Response $response) {
@@ -173,10 +174,10 @@ abstract class TestCase extends BaseTestCase
      */
     public function testMalformedWrite(Promise $dbCreated)
     {
-        $dbCreated->then(function(){
+        $dbCreated->then(function () {
             return $this->client->write('foobarbaz');
         })->done(
-            function() {
+            function () {
                 static::fail('Request yielded a fullfilled promise');
             },
             function (Response $response) {

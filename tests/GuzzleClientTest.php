@@ -53,7 +53,7 @@ class GuzzleClientTest extends TestCase
     public function testQueryProxiesToGuzzleRequestAsync()
     {
         $guzzlePromise = $this->createMock(GuzzlePromise::class);
-        $query = 'foobar';
+        $query         = 'foobar';
 
         $this->guzzle
             ->expects(static::once())
@@ -70,15 +70,16 @@ class GuzzleClientTest extends TestCase
     public function testWriteProxiesToGuzzleRequestAsync()
     {
         $guzzlePromise = $this->createMock(GuzzlePromise::class);
-        $payload = 'foobar';
+        $payload       = 'foobar';
 
         $this->guzzle
             ->expects(static::once())
             ->method('requestAsync')
-            ->with('POST', 'write?db=', static::callback(function($guzzleConfig) use ($payload) {
+            ->with('POST', 'write?db=', static::callback(function ($guzzleConfig) use ($payload) {
                 static::assertInternalType('array', $guzzleConfig);
                 static::assertArrayHasKey('body', $guzzleConfig);
                 static::assertEquals($guzzleConfig['body'], $payload);
+
                 return true;
             }))
             ->willReturn($guzzlePromise)
@@ -102,8 +103,9 @@ class GuzzleClientTest extends TestCase
         $this->guzzle
             ->expects(static::once())
             ->method('requestAsync')
-            ->with('GET', 'query?db=&q=', static::callback(function($guzzleConfig) use ($expectedUrl) {
+            ->with('GET', 'query?db=&q=', static::callback(function ($guzzleConfig) use ($expectedUrl) {
                 static::assertEquals($expectedUrl, $guzzleConfig['base_uri']);
+
                 return true;
             }))
             ->willReturn($this->createMock(GuzzlePromise::class))
@@ -116,16 +118,16 @@ class GuzzleClientTest extends TestCase
     {
         return [
             [
-                [], 'http://localhost:8086'
+                [], 'http://localhost:8086',
             ],
             [
                 [
-                    'ssl' => 'true',
+                    'ssl'  => 'true',
                     'host' => 'foobar',
                     'port' => 666,
                 ],
-                'https://foobar:666'
-            ]
+                'https://foobar:666',
+            ],
         ];
     }
 
@@ -142,12 +144,13 @@ class GuzzleClientTest extends TestCase
         $this->guzzle
             ->expects(static::once())
             ->method('requestAsync')
-            ->with('GET', 'query?db=&q=', static::callback(function($guzzleConfig) use ($expectedAuth) {
+            ->with('GET', 'query?db=&q=', static::callback(function ($guzzleConfig) use ($expectedAuth) {
                 if (empty($expectedAuth)) {
                     static::assertArrayNotHasKey('auth', $guzzleConfig);
                 } else {
                     static::assertEquals($expectedAuth, $guzzleConfig['auth']);
                 }
+
                 return true;
             }))
             ->willReturn($this->createMock(GuzzlePromise::class))
@@ -160,26 +163,26 @@ class GuzzleClientTest extends TestCase
     {
         return [
             [
-                [], []
+                [], [],
             ],
             [
                 [
                     'username' => 'foo',
                 ],
-                []
+                [],
             ],
             [
                 [
                     'password' => 'foo',
                 ],
-                []
+                [],
             ],
             [
                 [
                     'username' => 'foo',
                     'password' => 'bar',
                 ],
-                [ 'foo', 'bar' ]
+                [ 'foo', 'bar' ],
             ],
         ];
     }
@@ -187,7 +190,7 @@ class GuzzleClientTest extends TestCase
     public function testTimeoutOption()
     {
         $options = [
-            'timeout' => 666
+            'timeout' => 666,
         ];
 
         $this->SUT = new GuzzleClient($options, $this->loop, $this->guzzle);
@@ -195,8 +198,9 @@ class GuzzleClientTest extends TestCase
         $this->guzzle
             ->expects(static::once())
             ->method('requestAsync')
-            ->with('GET', 'query?db=&q=', static::callback(function($guzzleConfig) use ($options) {
+            ->with('GET', 'query?db=&q=', static::callback(function ($guzzleConfig) use ($options) {
                 static::assertSame($options['timeout'], $guzzleConfig['timeout']);
+
                 return true;
             }))
             ->willReturn($this->createMock(GuzzlePromise::class))
@@ -208,7 +212,7 @@ class GuzzleClientTest extends TestCase
     public function testVerifySSLOption()
     {
         $options = [
-            'verifySSL' => true
+            'verifySSL' => true,
         ];
 
         $this->SUT = new GuzzleClient($options, $this->loop, $this->guzzle);
@@ -216,8 +220,9 @@ class GuzzleClientTest extends TestCase
         $this->guzzle
             ->expects(static::once())
             ->method('requestAsync')
-            ->with('GET', 'query?db=&q=', static::callback(function($guzzleConfig) use ($options) {
+            ->with('GET', 'query?db=&q=', static::callback(function ($guzzleConfig) use ($options) {
                 static::assertSame($options['verifySSL'], $guzzleConfig['verify']);
+
                 return true;
             }))
             ->willReturn($this->createMock(GuzzlePromise::class))

@@ -84,7 +84,7 @@ final class BuzzReactClient extends AbstractClient
         if ($options['ssl']) {
             $connector = new SocketClient\SecureConnector($connector, $loop, [
                 'verify_peer'      => $options['verifySSL'],
-                'verify_peer_name' => $options['verifySSL']
+                'verify_peer_name' => $options['verifySSL'],
             ]);
         }
 

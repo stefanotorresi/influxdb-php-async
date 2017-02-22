@@ -7,6 +7,7 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync\Test;
 
+use Closure;
 use Clue\React\Buzz\Browser;
 use Clue\React\Buzz\Io\Sender;
 use PHPUnit\Framework\TestCase;
@@ -62,7 +63,8 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('get')
             ->with("query?db=&q=$query", static::isType('array'))
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $result = $this->SUT->query($query);
@@ -78,7 +80,8 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('post')
             ->with('write?db=', static::isType('array'), $payload)
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $result = $this->SUT->write($payload);
@@ -103,21 +106,21 @@ class BuzzReactClientTest extends TestCase
     {
         return [
             [
-                [], 'http://localhost:8086'
+                [], 'http://localhost:8086',
             ],
             [
                 [
-                    'ssl' => 'true',
+                    'ssl'  => 'true',
                     'host' => 'foobar',
                     'port' => 666,
                 ],
-                'https://foobar:666'
-            ]
+                'https://foobar:666',
+            ],
         ];
     }
 
     /**
-     * @param array $options
+     * @param array       $options
      * @param string|null $expectedAuth
      *
      * @dataProvider authenticationOptionsProvider
@@ -129,15 +132,17 @@ class BuzzReactClientTest extends TestCase
         $this->buzz
             ->expects(static::once())
             ->method('get')
-            ->with('query?db=&q=', static::callback(function($headers) use ($expectedAuth) {
+            ->with('query?db=&q=', static::callback(function ($headers) use ($expectedAuth) {
                 if (empty($expectedAuth)) {
                     static::assertArrayNotHasKey('Authorization', $headers);
                 } else {
                     static::assertEquals($expectedAuth, $headers['Authorization']);
                 }
+
                 return true;
             }))
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $this->SUT->query('');
@@ -148,26 +153,26 @@ class BuzzReactClientTest extends TestCase
         return [
             [
                 [],
-                null
+                null,
             ],
             [
                 [
                     'username' => 'foo',
                 ],
-                null
+                null,
             ],
             [
                 [
                     'password' => 'foo',
                 ],
-                null
+                null,
             ],
             [
                 [
                     'username' => 'foo',
                     'password' => 'bar',
                 ],
-                'Basic ' . base64_encode('foo:bar')
+                'Basic ' . base64_encode('foo:bar'),
             ],
         ];
     }
@@ -181,15 +186,16 @@ class BuzzReactClientTest extends TestCase
         $this->buzz
             ->expects(static::atLeastOnce())
             ->method('withSender')
-            ->with(static::callback(function(Sender $sender) {
+            ->with(static::callback(function (Sender $sender) {
                 // @todo submit a PR to `clue/php-buzz-react` to make options more accessible, this is ugly as f*ck
-                $http = \Closure::fromCallable(function(){
+                $http = Closure::fromCallable(function () {
                     return $this->http;
                 })->call($sender);
-                $connector = $http = \Closure::fromCallable(function(){
+                $connector = $http = Closure::fromCallable(function () {
                     return $this->connector;
                 })->call($http);
                 self::assertInstanceOf(SocketClient\TimeoutConnector::class, $connector);
+
                 return true;
             }))
             ->willReturn($this->buzz)
@@ -203,22 +209,23 @@ class BuzzReactClientTest extends TestCase
     public function testVerifySSLOption()
     {
         $options = [
-            'ssl' => true,
+            'ssl'       => true,
             'verifySSL' => true,
         ];
 
         $this->buzz
             ->expects(static::atLeastOnce())
             ->method('withSender')
-            ->with(static::callback(function(Sender $sender) {
+            ->with(static::callback(function (Sender $sender) {
                 // @todo submit a PR to `clue/php-buzz-react` make options more accessible, this is ugly as f*ck
-                $http = \Closure::fromCallable(function(){
+                $http = Closure::fromCallable(function () {
                     return $this->http;
                 })->call($sender);
-                $connector = $http = \Closure::fromCallable(function(){
+                $connector = $http = Closure::fromCallable(function () {
                     return $this->connector;
                 })->call($http);
                 self::assertInstanceOf(SocketClient\SecureConnector::class, $connector);
+
                 return true;
             }))
             ->willReturn($this->buzz)
@@ -238,7 +245,8 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('get')
             ->with("query?db=$database&q=", static::isType('array'))
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $this->SUT->query('');
@@ -254,7 +262,8 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('get')
             ->with("query?db=$database&q=", static::isType('array'))
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $this->SUT->query('', ['db' => $database]);
@@ -266,7 +275,8 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method('head')
             ->with('ping')
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $result = $this->SUT->ping();
@@ -286,7 +296,8 @@ class BuzzReactClientTest extends TestCase
             ->expects(static::once())
             ->method($verb)
             ->with('query?db=&q=' . urlencode($query), static::isType('array'))
-            ->willReturn(new Promise(function(){}))
+            ->willReturn(new Promise(function () {
+            }))
         ;
 
         $this->SUT->query($query);
