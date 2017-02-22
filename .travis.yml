@@ -1,9 +1,8 @@
 sudo: required
+dist: trusty
 
 services:
   - docker
-
-language: php
 
 matrix:
   fast_finish: true
@@ -31,8 +30,6 @@ cache:
     - vendor
 
 before_install:
-  - docker run -d -p 8086:8086 influxdb:alpine
-  - docker ps -a
   - if [[ $XDEBUG != 'true' && "$(php --version | grep xdebug -ci)" -ge 1 ]]; then phpenv config-rm xdebug.ini ; fi
 
 install:
@@ -40,6 +37,10 @@ install:
   - if [[ $DEPS == 'locked' ]]; then travis_retry composer install $COMPOSER_ARGS ; fi
   - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
   - composer show
+
+before_script:
+  - docker run -d -p 8086:8086 influxdb:alpine
+  - docker ps -a
 
 script:
   - composer test
