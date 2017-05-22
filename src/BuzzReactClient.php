@@ -7,13 +7,11 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync;
 
-use Closure;
 use Clue\React\Buzz;
 use React\Dns\Resolver\Factory as ResolverFactory;
 use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use React\SocketClient;
-use function \React\Promise\reject as reject_promise;
 
 final class BuzzReactClient extends AbstractClient
 {
