@@ -159,7 +159,8 @@ abstract class TestCase extends BaseTestCase
             function () {
                 static::fail('Request yielded a fullfilled promise');
             },
-            function (Response $response) {
+            function ($exception) {
+                $response = $exception->getResponse();
                 $responseString = (string) $response->getBody();
                 $responseArray = json_decode($responseString, true);
                 static::assertSame(400, $response->getStatusCode());
@@ -180,7 +181,8 @@ abstract class TestCase extends BaseTestCase
             function () {
                 static::fail('Request yielded a fullfilled promise');
             },
-            function (Response $response) {
+            function ($exception) {
+                $response = $exception->getResponse();
                 $responseString = (string) $response->getBody();
                 $responseArray = json_decode($responseString, true);
                 static::assertSame(400, $response->getStatusCode());

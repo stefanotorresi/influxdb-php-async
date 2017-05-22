@@ -47,10 +47,7 @@ final class BuzzReactClient extends AbstractClient
         $headers = $this->createRequestHeaders();
         $method  = $this->detectQueryMethod($query);
 
-        return $this->buzz
-            ->{$method}($url, $headers)
-            ->otherwise(Closure::fromCallable([ $this, 'convertResponseExceptionToResponse' ]))
-        ;
+        return $this->buzz->{$method}($url, $headers);
     }
 
     public function write(string $payload, array $params = []): ExtendedPromiseInterface
@@ -58,10 +55,7 @@ final class BuzzReactClient extends AbstractClient
         $url     = $this->createWriteUrl($params);
         $headers = $this->createRequestHeaders();
 
-        return $this->buzz
-            ->post($url, $headers, $payload)
-            ->otherwise(Closure::fromCallable([ $this, 'convertResponseExceptionToResponse' ]))
-        ;
+        return $this->buzz->post($url, $headers, $payload);
     }
 
     public function ping(): ExtendedPromiseInterface
@@ -106,14 +100,5 @@ final class BuzzReactClient extends AbstractClient
         }
 
         return $headers;
-    }
-
-    private function convertResponseExceptionToResponse($exception)
-    {
-        if (! $exception instanceof Buzz\Message\ResponseException) {
-            return reject_promise($exception);
-        }
-
-        return reject_promise($exception->getResponse());
     }
 }
