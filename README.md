@@ -26,12 +26,12 @@ interface AsyncClient
 }
 ```
 
-The default implementation uses [Buzz React][Buzz React] and we'll use it throughout the rest of this document. There is also one using [Guzzle][Guzzle], but it's currently not recommended and it requires you to install additional dependencies.
+The default implementation uses [Buzz React][Buzz React] and we'll use it throughout the rest of this document. 
 
 Here is a basic usage example where we first create a database, then write a line to it:
 
 ```php
-$client = new BuzzReactClient();
+$client = new ReactHttpClient();
 
 $client
     ->query('CREATE DATABASE test')
@@ -50,35 +50,37 @@ This API assumes that you're familiar with [ReactPHP promises][ReactPHP promises
 
 #### Configuration
 
-These are the default options for every client implementation:
+These are the default options:
 
 ```php
 [
-    'host'       => 'localhost',
-    'port'       => 8086,
-    'database'   => '',
-    'username'   => '',
-    'password'   => '',
-    'ssl'        => false,
-    'verifySSL'  => false,
-    'timeout'    => 0,
+    'host'           => 'localhost',
+    'port'           => 8086,
+    'database'       => '',
+    'username'       => '',
+    'password'       => '',
+    'socket_options' => [],
 ];
 ```
 
 You can change them at instantion time, defaults will be merged with the one passed:
 
 ```php
-$options = [ 'host' => 'influx-db.domain.tld', 'ssl' => true ];
+$options = [ 
+    'host' => 'influx-db.domain.tld', 
+    'socket_options' => [
+        'tls' => true,
+    ],   
+];
 
-$client = new BuzzReactClient($options);
+$client = new ReactHttpClient($options);
 ```
 
-Some clients may have implementation specific options, e.g. `clue/php-buzz-react` does userland DNS resolution, thus `BuzzReactClient` provides a `nameserver` option to set a DNS different than the default `8.8.8.8`.
+For details about the `socket_options` key, please refer to [react/socket documentation]. 
 
 ### Future developments / TO-DO list
 
 - An UDP client implemented with [react/datagram](https://github.com/reactphp/datagram).
-- A fully functional async Guzzle implementation that relies on cURL rather than userland React sockets. The incompatibility between Guzzle promises and React ones currently makes this problematic.
 - A QueryBuilder, possibly identical to the one in the [official influxdb-php client].
 - A set of response decoders that convert the JSON body from PSR-7 Responses to something more readily consumable.
 - Explore the possibility of merging this package into the official sdk.
@@ -92,6 +94,6 @@ This package is released under the [MIT](https://github.com/stefanotorresi/influ
 [ReactPHP]: http://reactphp.org
 [Composer]: https://getcomposer.org
 [Buzz React]: https://github.com/clue/php-buzz-react
-[Guzzle]: http://guzzlephp.org
 [ReactPHP promises]: https://github.com/reactphp/promise
 [official influxdb-php client]: https://github.com/influxdata/influxdb-php
+[react/socket documentation]: https://github.com/reactphp/socket#connector
