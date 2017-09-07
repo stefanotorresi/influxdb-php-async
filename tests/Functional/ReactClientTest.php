@@ -7,14 +7,14 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync\Test\Functional;
 
-use Thorr\InfluxDBAsync\GuzzleClient;
+use Thorr\InfluxDBAsync\ReactHttpClient;
 
-class GuzzleClientTest extends TestCase
+class ReactClientTest extends TestCase
 {
     protected function setUp()
     {
         parent::setUp();
 
-        $this->client = new GuzzleClient($this->options);
+        $this->client = new ReactHttpClient($this->options, $this->loop);
     }
 }

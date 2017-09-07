@@ -7,49 +7,54 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync\Test;
 
-use Closure;
 use Clue\React\Buzz\Browser;
-use Clue\React\Buzz\Io\Sender;
 use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use React\Promise\Promise;
-use React\SocketClient;
-use Thorr\InfluxDBAsync\BuzzReactClient;
+use React\Socket\ConnectorInterface;
+use Thorr\InfluxDBAsync\ReactHttpClient;
 
-class BuzzReactClientTest extends TestCase
+class ReactClientTest extends TestCase
 {
     /**
-     * @var BuzzReactClient
+     * @var ReactHttpClient
      */
     private $SUT;
-
-    /**
-     * @var Browser|MockObject
-     */
-    private $buzz;
 
     /**
      * @var LoopInterface|MockObject
      */
     private $loop;
 
+    /**
+     * @var ConnectorInterface|MockObject
+     */
+    private $connector;
+
+    /**
+     * @var Browser|MockObject
+     */
+    private $buzz;
+
     protected function setUp()
     {
-        $this->loop = $this->createMock(LoopInterface::class);
+        $this->loop = Factory::create();
+        $this->connector = $this->createMock(ConnectorInterface::class);
         $this->buzz = $this->createMock(Browser::class);
         $this->buzz->expects(static::any())->method('withBase')->willReturn($this->buzz);
         $this->buzz->expects(static::any())->method('withSender')->willReturn($this->buzz);
 
-        $this->SUT = new BuzzReactClient([], $this->loop, $this->buzz);
+        $this->SUT = new ReactHttpClient([], $this->loop, $this->connector, $this->buzz);
     }
 
     public function testOptionsConstructor()
     {
-        $sutOptions = (new BuzzReactClient([]))->getOptions();
+        $sutOptions = (new ReactHttpClient([]))->getOptions();
 
-        foreach (BuzzReactClient::DEFAULT_OPTIONS as $option => $value) {
+        foreach (ReactHttpClient::DEFAULT_OPTIONS as $option => $value) {
             static::assertArrayHasKey($option, $sutOptions);
             static::assertSame($value, $sutOptions[$option]);
         }
@@ -97,12 +102,17 @@ class BuzzReactClientTest extends TestCase
      */
     public function testUrlOptions(array $options, string $expectedUrl)
     {
-        $this->buzz->expects(static::atLeastOnce())->method('withBase')->with($expectedUrl)->willReturn($this->buzz);
+        $this->buzz
+            ->expects(static::once())
+            ->method('withBase')
+            ->with($expectedUrl)
+            ->willReturn($this->buzz)
+        ;
 
-        $this->SUT = new BuzzReactClient($options, $this->loop, $this->buzz);
+        new ReactHttpClient($options, $this->loop, $this->connector, $this->buzz);
     }
 
-    public function urlOptionsProvider()
+    public function urlOptionsProvider(): array
     {
         return [
             [
@@ -110,7 +120,9 @@ class BuzzReactClientTest extends TestCase
             ],
             [
                 [
-                    'ssl'  => 'true',
+                    'socket_options' => [
+                        'tls' => true
+                    ],
                     'host' => 'foobar',
                     'port' => 666,
                 ],
@@ -127,7 +139,7 @@ class BuzzReactClientTest extends TestCase
      */
     public function testAuthenticationOptions(array $options, ?string $expectedAuth)
     {
-        $this->SUT = new BuzzReactClient($options, $this->loop, $this->buzz);
+        $this->SUT = new ReactHttpClient($options, $this->loop, $this->connector, $this->buzz);
 
         $this->buzz
             ->expects(static::once())
@@ -175,65 +187,6 @@ class BuzzReactClientTest extends TestCase
                 'Basic ' . base64_encode('foo:bar'),
             ],
         ];
-    }
-
-    public function testTimeoutOption()
-    {
-        $options = [
-            'timeout' => 2,
-        ];
-
-        $this->buzz
-            ->expects(static::atLeastOnce())
-            ->method('withSender')
-            ->with(static::callback(function (Sender $sender) {
-                // @todo submit a PR to `clue/php-buzz-react` to make options more accessible, this is ugly as f*ck
-                $http = Closure::fromCallable(function () {
-                    return $this->http;
-                })->call($sender);
-                $connector = $http = Closure::fromCallable(function () {
-                    return $this->connector;
-                })->call($http);
-                self::assertInstanceOf(SocketClient\TimeoutConnector::class, $connector);
-
-                return true;
-            }))
-            ->willReturn($this->buzz)
-        ;
-
-        $this->SUT = new BuzzReactClient($options, $this->loop, $this->buzz);
-
-        static::markTestIncomplete('this test leaks into implementation details');
-    }
-
-    public function testVerifySSLOption()
-    {
-        $options = [
-            'ssl'       => true,
-            'verifySSL' => true,
-        ];
-
-        $this->buzz
-            ->expects(static::atLeastOnce())
-            ->method('withSender')
-            ->with(static::callback(function (Sender $sender) {
-                // @todo submit a PR to `clue/php-buzz-react` make options more accessible, this is ugly as f*ck
-                $http = Closure::fromCallable(function () {
-                    return $this->http;
-                })->call($sender);
-                $connector = $http = Closure::fromCallable(function () {
-                    return $this->connector;
-                })->call($http);
-                self::assertInstanceOf(SocketClient\SecureConnector::class, $connector);
-
-                return true;
-            }))
-            ->willReturn($this->buzz)
-        ;
-
-        $this->SUT = new BuzzReactClient($options, $this->loop, $this->buzz);
-
-        static::markTestIncomplete("this test leaks into implementation details and doesn't actually test all the relevant options");
     }
 
     public function testSelectDatabase()
