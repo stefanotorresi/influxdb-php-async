@@ -7,10 +7,12 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync\Test\Functional;
 
+use Clue\React\Buzz\Message\ResponseException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Http\Message\ResponseInterface as Response;
-use React\Promise\ExtendedPromiseInterface as Promise;
+use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\LoopInterface;
 use Thorr\InfluxDBAsync\AsyncClient;
+use function Clue\React\Block\await;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -18,6 +20,11 @@ abstract class TestCase extends BaseTestCase
      * @var AsyncClient
      */
     protected $client;
+
+    /**
+     * @var LoopInterface
+     */
+    protected $loop;
 
     protected $options = [
         'host'     => '127.0.0.1',
@@ -35,161 +42,89 @@ abstract class TestCase extends BaseTestCase
             return;
         }
         fclose($socket);
+
+        $this->loop = LoopFactory::create();
     }
 
-    protected function tearDown()
+    public function testCanCreateDB()
     {
-        $this->client->run();
-    }
+        $response = await($this->client->query('CREATE DATABASE test'), $this->loop);
 
-    public function testCanCreateDB(): Promise
-    {
-        $dbCreated = $this->client
-            ->query('CREATE DATABASE test')
-            ->then(
-                function (Response $response) {
-                    $responseString = (string) $response->getBody();
-                    static::assertSame(200, $response->getStatusCode());
-                    static::assertNotContains('deprecated', $responseString);
-                    static::assertNotContains('error', $responseString);
-                },
-                function () {
-                    static::fail('Request yielded a rejected promise');
-                }
-            )
-        ;
-
-        return $dbCreated;
+        $responseString = (string) $response->getBody();
+        static::assertSame(200, $response->getStatusCode());
+        static::assertNotContains('deprecated', $responseString);
+        static::assertNotContains('error', $responseString);
     }
 
     /**
      * @depends testCanCreateDB
      */
-    public function testShowDatabases(Promise $dbCreated)
+    public function testShowDatabases()
     {
-        $dbCreated->then(function () {
-            return $this->client->query('SHOW DATABASES');
-        })->done(
-            function (Response $response) {
-                static::assertSame(200, $response->getStatusCode());
-                $responseString = (string) $response->getBody();
-                $responseArray = json_decode($responseString, true);
-                static::assertTrue(isset($responseArray['results'][0]['series'][0]['name']));
-                static::assertTrue(isset($responseArray['results'][0]['series'][0]['values']));
-                static::assertEquals('databases', $responseArray['results'][0]['series'][0]['name']);
-                static::assertContains([ 'test' ], $responseArray['results'][0]['series'][0]['values']);
-            },
-            function () {
-                static::fail('Request yielded a rejected promise');
-            }
-        );
+        $response = await($this->client->query('SHOW DATABASES'), $this->loop);
+
+        static::assertSame(200, $response->getStatusCode());
+        $responseString = (string) $response->getBody();
+        $responseArray  = json_decode($responseString, true);
+        static::assertTrue(isset($responseArray['results'][0]['series'][0]['name']));
+        static::assertTrue(isset($responseArray['results'][0]['series'][0]['values']));
+        static::assertEquals('databases', $responseArray['results'][0]['series'][0]['name']);
+        static::assertContains([ 'test' ], $responseArray['results'][0]['series'][0]['values']);
     }
 
     /**
      * @depends testCanCreateDB
      */
-    public function testSelectEverything(Promise $dbCreated)
+    public function testSelectEverything()
     {
-        $dbCreated->then(function () {
-            return $this->client->query('SELECT * FROM /.*/');
-        })->done(
-            function (Response $response) {
-                $responseString = (string) $response->getBody();
-                static::assertSame(200, $response->getStatusCode());
-                static::assertNotContains('error', $responseString);
-            },
-            function () {
-                static::fail('Request yielded a rejected promise');
-            }
-        );
+        $response = await($this->client->query('SELECT * FROM /.*/'), $this->loop);
+
+        $responseString = (string) $response->getBody();
+        static::assertSame(200, $response->getStatusCode());
+        static::assertNotContains('error', $responseString);
     }
 
     /**
      * @depends testCanCreateDB
      */
-    public function testWrite(Promise $dbCreated): Promise
+    public function testWrite()
     {
-        $measureWritten = $dbCreated->then(function () {
-            return $this->client->write('measure,tag="foo" value="bar"');
-        })->then(
-            function (Response $response) {
-                $responseString = (string) $response->getBody();
-                static::assertSame(204, $response->getStatusCode());
-                static::assertEmpty($responseString);
-            },
-            function () {
-                static::fail('Request yielded a rejected promise');
-            }
-        );
-
-        return $measureWritten;
+        $response       = await($this->client->write('measure,tag="foo" value="bar"'), $this->loop);
+        $responseString = (string) $response->getBody();
+        static::assertSame(204, $response->getStatusCode());
+        static::assertEmpty($responseString);
     }
 
     /**
      * @depends testWrite
      */
-    public function testSelectIntoDatabases(Promise $measureWritten)
+    public function testSelectIntoDatabases()
     {
-        $measureWritten->then(function () {
-            return $this->client->query('SELECT * INTO another_measure FROM measure', ['pretty' => 'true']);
-        })->done(
-            function (Response $response) {
-                static::assertSame(200, $response->getStatusCode());
-                $responseString = (string) $response->getBody();
-                $responseArray = json_decode($responseString, true);
-                static::assertTrue(isset($responseArray['results'][0]['series'][0]['name']));
-                static::assertEquals('result', $responseArray['results'][0]['series'][0]['name']);
-                static::assertContains('time', $responseArray['results'][0]['series'][0]['columns']);
-                static::assertContains('written', $responseArray['results'][0]['series'][0]['columns']);
-            },
-            function () {
-                static::fail('Request yielded a rejected promise');
-            }
-        );
+        $query    = 'SELECT * INTO another_measure FROM measure';
+        $response = await($this->client->query($query, ['pretty' => 'true']), $this->loop);
+
+        static::assertSame(200, $response->getStatusCode());
+        $responseString = (string) $response->getBody();
+        $responseArray  = json_decode($responseString, true);
+        static::assertTrue(isset($responseArray['results'][0]['series'][0]['name']));
+        static::assertEquals('result', $responseArray['results'][0]['series'][0]['name']);
+        static::assertContains('time', $responseArray['results'][0]['series'][0]['columns']);
+        static::assertContains('written', $responseArray['results'][0]['series'][0]['columns']);
     }
 
-    /**
-     * @depends testCanCreateDB
-     */
-    public function testMalformedQuery(Promise $dbCreated)
+    public function testMalformedQuery()
     {
-        $dbCreated->then(function () {
-            return $this->client->query('foobarbaz');
-        })->done(
-            function () {
-                static::fail('Request yielded a fullfilled promise');
-            },
-            function ($exception) {
-                $response = $exception->getResponse();
-                $responseString = (string) $response->getBody();
-                $responseArray = json_decode($responseString, true);
-                static::assertSame(400, $response->getStatusCode());
-                static::assertArrayHasKey('error', $responseArray);
-                static::assertContains('error parsing query', $responseArray['error']);
-            }
-        );
+        $this->expectException(ResponseException::class);
+        $this->expectExceptionMessage('Bad Request');
+
+        await($this->client->query('foobarbaz'), $this->loop);
     }
 
-    /**
-     * @depends testCanCreateDB
-     */
-    public function testMalformedWrite(Promise $dbCreated)
+    public function testMalformedWrite()
     {
-        $dbCreated->then(function () {
-            return $this->client->write('foobarbaz');
-        })->done(
-            function () {
-                static::fail('Request yielded a fullfilled promise');
-            },
-            function ($exception) {
-                $response = $exception->getResponse();
-                $responseString = (string) $response->getBody();
-                $responseArray = json_decode($responseString, true);
-                static::assertSame(400, $response->getStatusCode());
-                static::assertArrayHasKey('error', $responseArray);
-                static::assertContains('unable to parse', $responseArray['error']);
-                static::assertContains('missing fields', $responseArray['error']);
-            }
-        );
+        $this->expectException(ResponseException::class);
+        $this->expectExceptionMessage('Bad Request');
+
+        await($this->client->write('foobarbaz'), $this->loop);
     }
 }
