@@ -11,7 +11,7 @@ use Clue\React\Buzz;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
 use React\HttpClient\Client as HttpClient;
-use React\Promise\ExtendedPromiseInterface;
+use React\Promise\ExtendedPromiseInterface as Promise;
 use React\Socket;
 
 final class ReactHttpClient extends AbstractClient
@@ -47,7 +47,7 @@ final class ReactHttpClient extends AbstractClient
     }
 
 
-    public function query(string $query, array $params = []): ExtendedPromiseInterface
+    public function query(string $query, array $params = []): Promise
     {
         $url     = $this->createQueryUrl($query, $params);
         $headers = $this->createRequestHeaders();
@@ -56,7 +56,7 @@ final class ReactHttpClient extends AbstractClient
         return $this->buzz->{$method}($url, $headers);
     }
 
-    public function write(string $payload, array $params = []): ExtendedPromiseInterface
+    public function write(string $payload, array $params = []): Promise
     {
         $url     = $this->createWriteUrl($params);
         $headers = $this->createRequestHeaders();
@@ -64,7 +64,7 @@ final class ReactHttpClient extends AbstractClient
         return $this->buzz->post($url, $headers, $payload);
     }
 
-    public function ping(): ExtendedPromiseInterface
+    public function ping(): Promise
     {
         return $this->buzz->head('ping');
     }
