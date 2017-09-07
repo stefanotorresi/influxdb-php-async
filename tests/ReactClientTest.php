@@ -41,9 +41,9 @@ class ReactClientTest extends TestCase
 
     protected function setUp()
     {
-        $this->loop = Factory::create();
+        $this->loop      = Factory::create();
         $this->connector = $this->createMock(ConnectorInterface::class);
-        $this->buzz = $this->createMock(Browser::class);
+        $this->buzz      = $this->createMock(Browser::class);
         $this->buzz->expects(static::any())->method('withBase')->willReturn($this->buzz);
         $this->buzz->expects(static::any())->method('withSender')->willReturn($this->buzz);
 
@@ -121,7 +121,7 @@ class ReactClientTest extends TestCase
             [
                 [
                     'socket_options' => [
-                        'tls' => true
+                        'tls' => true,
                     ],
                     'host' => 'foobar',
                     'port' => 666,

@@ -106,7 +106,7 @@ final class ReactHttpClient extends AbstractClient
         $buzz       = $buzz ? $buzz->withSender($sender) : new Buzz\Browser($this->loop, $sender);
 
         $baseUri = $this->createBaseUri();
-        $buzz = $buzz->withBase($baseUri);
+        $buzz    = $buzz->withBase($baseUri);
 
         return $buzz;
     }

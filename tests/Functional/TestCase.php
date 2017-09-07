@@ -7,13 +7,12 @@ declare(strict_types = 1);
 
 namespace Thorr\InfluxDBAsync\Test\Functional;
 
-use function Clue\React\Block\await;
 use Clue\React\Buzz\Message\ResponseException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use React\Promise\ExtendedPromiseInterface as Promise;
 use Thorr\InfluxDBAsync\AsyncClient;
+use function Clue\React\Block\await;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -66,7 +65,7 @@ abstract class TestCase extends BaseTestCase
 
         static::assertSame(200, $response->getStatusCode());
         $responseString = (string) $response->getBody();
-        $responseArray = json_decode($responseString, true);
+        $responseArray  = json_decode($responseString, true);
         static::assertTrue(isset($responseArray['results'][0]['series'][0]['name']));
         static::assertTrue(isset($responseArray['results'][0]['series'][0]['values']));
         static::assertEquals('databases', $responseArray['results'][0]['series'][0]['name']);
@@ -90,7 +89,7 @@ abstract class TestCase extends BaseTestCase
      */
     public function testWrite()
     {
-        $response = await($this->client->write('measure,tag="foo" value="bar"'), $this->loop);
+        $response       = await($this->client->write('measure,tag="foo" value="bar"'), $this->loop);
         $responseString = (string) $response->getBody();
         static::assertSame(204, $response->getStatusCode());
         static::assertEmpty($responseString);
@@ -101,12 +100,12 @@ abstract class TestCase extends BaseTestCase
      */
     public function testSelectIntoDatabases()
     {
-        $query = 'SELECT * INTO another_measure FROM measure';
+        $query    = 'SELECT * INTO another_measure FROM measure';
         $response = await($this->client->query($query, ['pretty' => 'true']), $this->loop);
 
         static::assertSame(200, $response->getStatusCode());
         $responseString = (string) $response->getBody();
-        $responseArray = json_decode($responseString, true);
+        $responseArray  = json_decode($responseString, true);
         static::assertTrue(isset($responseArray['results'][0]['series'][0]['name']));
         static::assertEquals('result', $responseArray['results'][0]['series'][0]['name']);
         static::assertContains('time', $responseArray['results'][0]['series'][0]['columns']);
