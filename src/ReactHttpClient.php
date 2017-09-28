@@ -5,7 +5,7 @@
 
 declare(strict_types = 1);
 
-namespace Thorr\InfluxDBAsync;
+namespace Thorr\InfluxDB;
 
 use Clue\React\Buzz;
 use React\EventLoop\Factory as LoopFactory;

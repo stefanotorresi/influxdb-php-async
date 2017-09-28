@@ -5,9 +5,9 @@
 
 declare(strict_types = 1);
 
-namespace Thorr\InfluxDBAsync\Test\Functional;
+namespace Thorr\InfluxDB\Test\Functional;
 
-use Thorr\InfluxDBAsync\ReactHttpClient;
+use Thorr\InfluxDB\ReactHttpClient;
 
 class ReactClientTest extends TestCase
 {

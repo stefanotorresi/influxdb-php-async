@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Thorr\\InfluxDBAsync\\": ["src/"]
+            "Thorr\\InfluxDB\\": ["src/"]
         },
         "files": [
             "src/functions.php"
@@ -19,7 +19,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Thorr\\InfluxDBAsync\\Test\\": ["tests/"]
+            "Thorr\\InfluxDB\\Test\\": ["tests/"]
         },
         "files": [
             "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"

@@ -5,7 +5,7 @@
 
 declare(strict_types = 1);
 
-namespace Thorr\InfluxDBAsync\Test;
+namespace Thorr\InfluxDB\Test;
 
 use Clue\React\Buzz\Browser;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +15,7 @@ use React\EventLoop\LoopInterface;
 use React\Promise\ExtendedPromiseInterface;
 use React\Promise\Promise;
 use React\Socket\ConnectorInterface;
-use Thorr\InfluxDBAsync\ReactHttpClient;
+use Thorr\InfluxDB\ReactHttpClient;
 
 class ReactClientTest extends TestCase
 {

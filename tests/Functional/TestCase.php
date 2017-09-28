@@ -5,13 +5,13 @@
 
 declare(strict_types = 1);
 
-namespace Thorr\InfluxDBAsync\Test\Functional;
+namespace Thorr\InfluxDB\Test\Functional;
 
 use Clue\React\Buzz\Message\ResponseException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use Thorr\InfluxDBAsync\AsyncClient;
+use Thorr\InfluxDB\AsyncClient;
 use function Clue\React\Block\await;
 
 abstract class TestCase extends BaseTestCase

@@ -24,11 +24,11 @@ class FunctionsTest extends TestCase
     public function influxTagProvider(): array
     {
         return [
-            [ 'foo bar', 'foo\\ bar'],
-            [ 'foo,bar', "foo\\,bar"],
-            [ 'foo=bar', "foo\\=bar"],
-            [ 'foo = bar', "foo\\ \\=\\ bar"],
-            [ 'foo = bar,baz', "foo\\ \\=\\ bar\\,baz"],
+            [ 'foo bar', 'foo\\ bar' ],
+            [ 'foo,bar', 'foo\\,bar' ],
+            [ 'foo=bar', 'foo\\=bar' ],
+            [ 'foo = bar', 'foo\\ \\=\\ bar' ],
+            [ 'foo = bar,baz', 'foo\\ \\=\\ bar\\,baz' ],
         ];
     }
 
