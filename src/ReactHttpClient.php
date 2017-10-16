@@ -10,7 +10,6 @@ namespace Thorr\InfluxDB;
 use Clue\React\Buzz;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use React\HttpClient\Client as HttpClient;
 use React\Promise\ExtendedPromiseInterface as Promise;
 use React\Socket;
 
@@ -101,9 +100,7 @@ final class ReactHttpClient extends AbstractClient
             $connector = new Socket\Connector($this->loop, $this->getOptions()['socket_options']);
         }
 
-        $httpClient = new HttpClient($this->loop, $connector);
-        $sender     = new Buzz\Io\Sender($httpClient);
-        $buzz       = $buzz ? $buzz->withSender($sender) : new Buzz\Browser($this->loop, $sender);
+        $buzz = $buzz ?: new Buzz\Browser($this->loop, $connector);
 
         $baseUri = $this->createBaseUri();
         $buzz    = $buzz->withBase($baseUri);

@@ -45,7 +45,6 @@ class ReactClientTest extends TestCase
         $this->connector = $this->createMock(ConnectorInterface::class);
         $this->buzz      = $this->createMock(Browser::class);
         $this->buzz->expects(static::any())->method('withBase')->willReturn($this->buzz);
-        $this->buzz->expects(static::any())->method('withSender')->willReturn($this->buzz);
 
         $this->SUT = new ReactHttpClient([], $this->loop, $this->connector, $this->buzz);
     }

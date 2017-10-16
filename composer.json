@@ -27,7 +27,7 @@
     },
     "require": {
         "php": "^7.1",
-        "clue/buzz-react": "^1.2",
+        "clue/buzz-react": "^2.1",
         "react/http-client": "^0.5"
     },
     "require-dev": {
